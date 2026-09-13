@@ -10,6 +10,8 @@ from sklearn.manifold import TSNE
 import argparse
 import utils
 from fig1 import load_embeddings, validate_target_word, extract_word_vectors, compute_or_load_tsne, save_figure
+# --- chiwug patch: dataset switch ---
+from dataset_config import DATASET, DATA_DIR, EMB_NAME, PERIOD_SRC, PERIOD_TGT
 
 def parse_args():
     """Parse command line arguments"""
@@ -56,7 +58,7 @@ def main():
     )
     
     # Load gold sense clusters
-    df = pd.read_table(f"data/dwug_en/clusters/opt/{args.tgt_word}.csv", quoting=csv.QUOTE_NONE)
+    df = pd.read_table(f"{DATA_DIR}/clusters/opt/{args.tgt_word}.csv", quoting=csv.QUOTE_NONE)
     clusters = df["cluster"].values.tolist()
     colors = ["lightblue", "orange", "red", "gray"]
     cluster_colors = [colors[i] if i in [0,1,2] else "gray" for i in clusters]
@@ -71,8 +73,8 @@ def main():
     ax.scatter(target_vecs_2d[:, 0], target_vecs_2d[:, 1],
                c=cluster_colors[len(source_vecs_2d):],
                s=100, marker='s', edgecolors='k', linewidth=0.5)
-    ax.scatter([], [], s=100, c="white", edgecolors="black", label=r"1810―1860", linewidths=0.5)
-    ax.scatter([], [], s=100, c="white", edgecolors="black", label=r"1960―2010", marker="s", linewidths=0.5)
+    ax.scatter([], [], s=100, c="white", edgecolors="black", label=PERIOD_SRC, linewidths=0.5)
+    ax.scatter([], [], s=100, c="white", edgecolors="black", label=PERIOD_TGT, marker="s", linewidths=0.5)
     
     for label, color in zip(labels, colors):
         ax.scatter([], [], s=100, c=color, label=label, edgecolors="black", linewidths=0.5)

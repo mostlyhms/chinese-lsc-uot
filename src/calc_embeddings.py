@@ -8,11 +8,15 @@ from WordTransformer import WordTransformer
 from WordTransformer import InputExample
 import torch
 import argparse
+# --- chiwug patch: dataset switch ---
+from dataset_config import DATASET, DATA_DIR, EMB_NAME, PERIOD_SRC, PERIOD_TGT
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Calculate embeddings for DWUG English dataset")
-    parser.add_argument("--input_dir", type=str, default="data/dwug_en", help="Input directory containing DWUG data")
+    parser.add_argument("--input_dir", type=str, default=DATA_DIR, help="Input directory containing DWUG data")
     parser.add_argument("--output_dir", type=str, default="embeddings", help="Output directory for embeddings")
+    parser.add_argument("--device", type=str, default="auto",
+                        help="auto | cpu | mps | cuda:0")
     return parser.parse_args()
 
 def main():
@@ -22,7 +26,15 @@ def main():
     output_dir = Path(args.output_dir)
     output_dir.mkdir(exist_ok=True, parents=True)
     
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    if args.device != "auto":
+        device = args.device
+    elif torch.cuda.is_available():
+        device = "cuda:0"
+    elif getattr(torch.backends, "mps", None) is not None and torch.backends.mps.is_available():
+        device = "mps"
+    else:
+        device = "cpu"
+    print(f"[calc_embeddings] device={device}")
     model = WordTransformer("pierluigic/xl-lexeme", device=device)
 
     src_gid = 1
@@ -30,7 +42,12 @@ def main():
     source_token2vecs = defaultdict(list)
     target_token2vecs = defaultdict(list)
 
-    for lemma_dir in tqdm(sorted((input_dir / "data").iterdir())):
+    # 过滤 .DS_Store 等隐藏项，否则会尝试读取 ".DS_Store/uses.csv"
+    lemma_dirs = sorted(
+        d for d in (input_dir / "data").iterdir()
+        if d.is_dir() and not d.name.startswith(".")
+    )
+    for lemma_dir in tqdm(lemma_dirs):
         lemma = lemma_dir.stem
         csv_path = lemma_dir / "uses.csv"
         df = pd.read_table(csv_path, quoting=csv.QUOTE_NONE)
@@ -49,7 +66,7 @@ def main():
                 vec = model.encode(input_example)
                 token2vecs[lemma].append(vec)
 
-    with open(output_dir/"dwug_en_embeddings.pkl", "wb") as f:
+    with open(output_dir/EMB_NAME, "wb") as f:
         pickle.dump((source_token2vecs, target_token2vecs), f)
 
 if __name__ == "__main__":

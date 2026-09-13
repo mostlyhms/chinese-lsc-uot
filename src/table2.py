@@ -11,6 +11,8 @@ import logging
 import itertools
 import inspect
 import metrics
+# --- chiwug patch: dataset switch ---
+from dataset_config import DATASET, DATA_DIR, EMB_NAME, PERIOD_SRC, PERIOD_TGT
 
 
 def setup_logging():
@@ -49,7 +51,7 @@ def load_and_prepare_data():
     logging.info("Loading and preparing data...")
     
     # Load statistics data
-    df = pd.read_table("data/dwug_en/stats/opt/stats_groupings.csv", quoting=csv.QUOTE_NONE)
+    df = pd.read_table(f"{DATA_DIR}/stats/opt/stats_groupings.csv", quoting=csv.QUOTE_NONE)
     df["cluster_prob_dist1"] = df["cluster_prob_dist1"].apply(str2list)
     df["cluster_prob_dist2"] = df["cluster_prob_dist2"].apply(str2list)
     
@@ -78,7 +80,7 @@ def load_and_prepare_data():
     # Load cluster assignments
     word_instance2cluster = defaultdict(list)
     for lemma in word_cluster2tau.keys():
-        df_cluster = pd.read_table(f"data/dwug_en/clusters/opt/{lemma}.csv")
+        df_cluster = pd.read_table(f"{DATA_DIR}/clusters/opt/{lemma}.csv")
         word_instance2cluster[lemma] = df_cluster["cluster"].tolist()
     
     # Map instances to gold tau values
@@ -89,7 +91,7 @@ def load_and_prepare_data():
         word_instance2tau_gold[lemma] = taus
     
     # Load embeddings
-    with open("embeddings/dwug_en_embeddings.pkl", "rb") as f:
+    with open(f"embeddings/{EMB_NAME}", "rb") as f:
         source_token2vecs, target_token2vecs = pickle.load(f)
     
     logging.info(f"Loaded data for {len(word_instance2tau_gold)} words")

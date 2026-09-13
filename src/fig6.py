@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 import utils
 import argparse
+# --- chiwug patch: dataset switch ---
+from dataset_config import DATASET, DATA_DIR, EMB_NAME, PERIOD_SRC, PERIOD_TGT
 
 
 def parse_args():
@@ -25,7 +27,7 @@ def str2list(s):
 def load_and_preprocess_data():
     """Load and preprocess the statistics data."""
     print("Loading statistics data...")
-    df = pd.read_table("data/dwug_en/stats/opt/stats_groupings.csv", quoting=csv.QUOTE_NONE)
+    df = pd.read_table(f"{DATA_DIR}/stats/opt/stats_groupings.csv", quoting=csv.QUOTE_NONE)
     df["cluster_prob_dist1"] = df["cluster_prob_dist1"].apply(str2list)
     df["cluster_prob_dist2"] = df["cluster_prob_dist2"].apply(str2list)
     return df
@@ -70,7 +72,7 @@ def load_cluster_assignments(word_cluster2tau):
     word_instance2cluster = defaultdict(list)
     
     for lemma in word_cluster2tau.keys():
-        df_cluster = pd.read_table(f"data/dwug_en/clusters/opt/{lemma}.csv")
+        df_cluster = pd.read_table(f"{DATA_DIR}/clusters/opt/{lemma}.csv")
         word_instance2cluster[lemma] = df_cluster["cluster"].tolist()
     
     return word_instance2cluster
@@ -93,7 +95,7 @@ def map_instances_to_tau(word_cluster2tau, word_instance2cluster):
 def load_embeddings():
     """Load pre-computed embeddings."""
     print("Loading embeddings...")
-    with open("embeddings/dwug_en_embeddings.pkl", "rb") as f:
+    with open(f"embeddings/{EMB_NAME}", "rb") as f:
         source_token2vecs, target_token2vecs = pickle.load(f)
     return source_token2vecs, target_token2vecs
 

@@ -13,6 +13,8 @@ import logging
 
 import utils
 import metrics
+# --- chiwug patch: dataset switch ---
+from dataset_config import DATASET, DATA_DIR, EMB_NAME, PERIOD_SRC, PERIOD_TGT
 
 def setup_logging():
     """Set up logging configuration"""
@@ -38,13 +40,13 @@ def load_data():
     logging.info("Loading data...")
     
     # Load statistics
-    df = pd.read_table("data/dwug_en/stats/opt/stats_groupings.csv", quoting=csv.QUOTE_NONE)
+    df = pd.read_table(f"{DATA_DIR}/stats/opt/stats_groupings.csv", quoting=csv.QUOTE_NONE)
     id2word = dict(zip(df.index, df["lemma"]))
     word2id = dict(zip(df["lemma"], df.index))
     word2gold_jsd = dict(zip(df["lemma"], df["change_graded"]))
     
     # Load embeddings
-    with open("embeddings/dwug_en_embeddings.pkl", "rb") as f:
+    with open(f"embeddings/{EMB_NAME}", "rb") as f:
         source_token2vecs, target_token2vecs = pickle.load(f)
     
     logging.info(f"Loaded {len(df)} words with embeddings")
@@ -222,7 +224,7 @@ def main():
     df, id2word, word2id, word2gold_jsd, source_token2vecs, target_token2vecs = load_data()
     
     # Define methods to evaluate
-    methods = ["f_SUS", "f_OT", "f_APD", "f_LDR", "f_WiDiD", "f_APDP"]
+    methods = ["f_SUS", "f_OT", "f_APD", "f_PRT", "f_LDR", "f_WiDiD", "f_APDP"]
     
     results = []
     

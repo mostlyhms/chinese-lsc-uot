@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 import utils
 import argparse
+# --- chiwug patch: dataset switch ---
+from dataset_config import DATASET, DATA_DIR, EMB_NAME, PERIOD_SRC, PERIOD_TGT
 
 
 def parse_args():
@@ -21,7 +23,7 @@ def parse_args():
 
 def load_embeddings(input_dir):
     """Load embedding data from pickle file"""
-    embeddings_path = input_dir / "dwug_en_embeddings.pkl"
+    embeddings_path = input_dir / EMB_NAME
     with open(embeddings_path, "rb") as f:
         source_token2vecs, target_token2vecs = pickle.load(f)
     return source_token2vecs, target_token2vecs
@@ -37,7 +39,7 @@ def load_tsne_data(target_word):
 
 def load_cluster_data(target_word):
     """Load cluster data from CSV file"""
-    cluster_path = f"data/dwug_en/clusters/opt/{target_word}.csv"
+    cluster_path = f"{DATA_DIR}/clusters/opt/{target_word}.csv"
     df = pd.read_table(cluster_path, quoting=csv.QUOTE_NONE)
     # Convert cluster -1 to 0
     df.loc[df["cluster"] == -1, "cluster"] = 0

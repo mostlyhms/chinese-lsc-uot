@@ -6,6 +6,8 @@ from pathlib import Path
 import pickle
 import argparse
 import utils
+# --- chiwug patch: dataset switch ---
+from dataset_config import DATASET, DATA_DIR, EMB_NAME, PERIOD_SRC, PERIOD_TGT
 
 
 def parse_args():
@@ -27,7 +29,7 @@ def load_embeddings(input_dir):
     Returns:
         tuple: Source and target token-to-vectors mappings
     """
-    embeddings_path = input_dir / "dwug_en_embeddings.pkl"
+    embeddings_path = input_dir / EMB_NAME
     with open(embeddings_path, "rb") as f:
         source_token2vecs, target_token2vecs = pickle.load(f)
     return source_token2vecs, target_token2vecs
@@ -82,13 +84,13 @@ def create_histogram_plot(source_sus, target_sus, target_word):
         source_sus, 
         bins=bins, 
         alpha=0.5, 
-        label=r"1810―1860"
+        label=PERIOD_SRC
     )
     ax.hist(
         target_sus, 
         bins=bins, 
         alpha=0.5, 
-        label=r"1960―2010",
+        label=PERIOD_TGT,
         hatch='////', 
         edgecolor='black', 
         linewidth=0

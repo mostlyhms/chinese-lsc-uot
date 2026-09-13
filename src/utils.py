@@ -10,6 +10,8 @@ from matplotlib.ticker import FuncFormatter
 from sklearn import preprocessing
 import matplotlib.colors as clr
 from scipy.stats import vonmises_fisher
+# --- chiwug patch: dataset switch ---
+from dataset_config import DATASET, DATA_DIR, EMB_NAME, PERIOD_SRC, PERIOD_TGT
 
 def calc_sus(u, v, reg_m=100, weight="uniform", div="l2"):
     if weight == "uniform":
@@ -103,7 +105,36 @@ def custom_formatter(x, pos, log=True):
         else:
             return r'$\pm0.0$'
 
-def scatter_plot(u, v, u_sus, v_sus, fig, ax, legend=True, max_abs_sus=None, cmap=None, ldr=False):
+def set_plot_aspect(ax, mode="pad", ratio=None, fig=None):
+    """t-SNE 散点的长宽比。mode: pad(默认) | equal | auto
+
+    pad  —— 等比例 + 把窄轴对称补白到 ratio，图能填满画布且距离不失真
+    equal—— 上游原行为，展布悬殊时会被压成一条
+    auto —— 填满画布但 x/y 尺度不同，t-SNE 上会误导，慎用
+    """
+    if mode == "auto":
+        ax.set_aspect("auto")
+        return
+    if mode == "pad":
+        if ratio is None:
+            # 目标长宽比取绘图区的物理长宽比，这样补白后正好填满
+            f = fig if fig is not None else ax.get_figure()
+            pos, (fw, fh) = ax.get_position(), f.get_size_inches()
+            ratio = (pos.width * fw) / (pos.height * fh)
+        (x0, x1), (y0, y1) = ax.get_xlim(), ax.get_ylim()
+        dx, dy = x1 - x0, y1 - y0
+        if dx <= 0 or dy <= 0:
+            ax.set_aspect("equal")
+            return
+        if dx / dy > ratio:      # 太扁：把 y 补高
+            pad = (dx / ratio - dy) / 2
+            ax.set_ylim(y0 - pad, y1 + pad)
+        else:                    # 太窄：把 x 补宽
+            pad = (dy * ratio - dx) / 2
+            ax.set_xlim(x0 - pad, x1 + pad)
+    ax.set_aspect("equal")
+
+def scatter_plot(u, v, u_sus, v_sus, fig, ax, legend=True, max_abs_sus=None, cmap=None, ldr=False, aspect="pad", aspect_ratio=None):
     all_sus = np.hstack([u_sus, v_sus])
     all_vecs = np.vstack([u, v])
     if max_abs_sus is None:
@@ -151,14 +182,14 @@ def scatter_plot(u, v, u_sus, v_sus, fig, ax, legend=True, max_abs_sus=None, cma
                    edgecolors="black", linewidths=0.5, marker=row['marker'], s=90)
 
     if legend:
-        ax.scatter([], [], s=90, c="blue", edgecolors="black", linewidths=0.5, label=r"1810―1860")
-        ax.scatter([], [], s=90, c="red", edgecolors="black", linewidths=0.5, marker="s", label=r"1960―2010")
+        ax.scatter([], [], s=90, c="blue", edgecolors="black", linewidths=0.5, label=PERIOD_SRC)
+        ax.scatter([], [], s=90, c="red", edgecolors="black", linewidths=0.5, marker="s", label=PERIOD_TGT)
         ax.legend(fontsize=15)
     
-    ax.set_aspect('equal')
+    set_plot_aspect(ax, aspect, aspect_ratio, fig)
     return cax
 
-def multiple_scatter_plot(u_list, v_list, u_sus_list, v_sus_list, fig, axs, tgt_words, legend=True):
+def multiple_scatter_plot(u_list, v_list, u_sus_list, v_sus_list, fig, axs, tgt_words, legend=True, aspect="pad", aspect_ratio=None):
     all_sus = np.hstack([np.hstack(u_sus_list), np.hstack(v_sus_list)])
     all_vecs = np.vstack([np.vstack(u_list), np.vstack(v_list)])
     min_x = min(all_vecs[:, 0])-1
@@ -177,4 +208,5 @@ def multiple_scatter_plot(u_list, v_list, u_sus_list, v_sus_list, fig, axs, tgt_
         scatter_plot(u, v, u_sus, v_sus, fig, ax, legend=legend, max_abs_sus=max_abs_sus, cmap=cmap)
         ax.set_xlim(min_x, max_x)
         ax.set_ylim(min_y, max_y)
+        set_plot_aspect(ax, aspect, aspect_ratio, fig)
         ax.set_title(tgt_words[i], fontsize=20)

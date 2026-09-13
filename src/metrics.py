@@ -101,6 +101,20 @@ def f_APD(u, v):
     return dist
 
 
+def f_PRT(u, v):
+    """PRT (PRoToType) —— 先对**未归一化**向量求平均得到原型，再算两个原型的余弦距离。
+
+    与 f_APD 的区别（两者都只需一次余弦，但量的不是一回事）：
+      f_APD = mean_{i,j} cosdist(u_i, v_j) = 1 - mean(u_hat) @ mean(v_hat)  ← 先逐条归一化
+      f_PRT = cosdist(mean(u), mean(v))                                     ← 不归一化
+    向量模长不同时两者不等；PRT 让长向量（通常是高频/高置信用例）权重更大。
+    Periti & Tahmasebi (NAACL 2024) 在 ChiWUG 上 bert-base-chinese 的最佳搭配就是 PRT。
+    """
+    u = np.asarray(u, dtype=np.float64)
+    v = np.asarray(v, dtype=np.float64)
+    return cosine(u.mean(axis=0), v.mean(axis=0))
+
+
 def f_WiDiD(u, v, damping=0.5):
     Ls, Lt = widid(u, v, damping=damping)
     return jsd(Ls, Lt)
