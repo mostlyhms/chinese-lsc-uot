@@ -1,6 +1,5 @@
 data/
 embeddings/
-outputs/
 xl-lexeme/
 CSSDetection/
 
@@ -178,5 +177,11 @@ poetry.toml
 
 # LSP config files
 pyrightconfig.json
+
+#Chinese LSC
+.DS_Store
+*.orig
+SETUP_ZH.md
+requirements-zh.txt
 
 # End of https://www.toptal.com/developers/gitignore/api/python
