@@ -1,0 +1,36 @@
+==========================================================================================
+Tau Correlation Evaluation Results (with Efficient Hyperparameter Optimization)
+Generated on: 2026-08-27 06:19:01
+==========================================================================================
+
+SUMMARY TABLE
+------------------------------------------------------------------------------------------
+Method     Instance-Level  Sense-Level     Trials   Best Param                    
+------------------------------------------------------------------------------------------
+SUS        0.62            0.92            100      20                            
+LDR        0.56            0.85            100      N/A                           
+WiDiD      0.39            0.81            100      0.8                           
+------------------------------------------------------------------------------------------
+
+DETAILED RESULTS
+------------------------------------------------------------------------------------------
+
+Method: SUS
+  Instance-Level Spearman: 0.62
+  Sense-Level Spearman:    0.92
+  Number of trials:        100
+  Most Common Parameter:   20 (selected 40 times)
+
+Method: LDR
+  Instance-Level Spearman: 0.56
+  Sense-Level Spearman:    0.85
+  Number of trials:        100
+  Most Common Parameter:   N/A (selected 100 times)
+
+Method: WiDiD
+  Instance-Level Spearman: 0.39
+  Sense-Level Spearman:    0.81
+  Number of trials:        100
+  Most Common Parameter:   0.8 (selected 69 times)
+
+==========================================================================================

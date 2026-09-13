@@ -1,0 +1,35 @@
+================================================================================
+Word-level Semantic Shift Evaluation Results
+Generated on: 2026-08-27 06:18:40
+================================================================================
+
+SUMMARY TABLE
+------------------------------------------------------------
+Method          Mean Spearman   Most Common Param             
+------------------------------------------------------------
+g_SUS           0.63            10                            
+g_vMF           0.61            N/A                           
+g_LDR           0.51            N/A                           
+g_WiDiD         0.40            0.8                           
+------------------------------------------------------------
+
+DETAILED RESULTS
+------------------------------------------------------------
+
+Method: g_SUS
+  Mean Spearman Correlation: 0.63
+  Most Common Parameter: 10 (selected 88 times)
+
+Method: g_vMF
+  Mean Spearman Correlation: 0.61
+  Most Common Parameter: N/A (selected 100 times)
+
+Method: g_LDR
+  Mean Spearman Correlation: 0.51
+  Most Common Parameter: N/A (selected 100 times)
+
+Method: g_WiDiD
+  Mean Spearman Correlation: 0.40
+  Most Common Parameter: 0.8 (selected 53 times)
+
+================================================================================
